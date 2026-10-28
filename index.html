@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>गाडी खाताबही प्रो - SaaS & Admin</title>
+    <title>गाडी खाताबही प्रो - ऑनलाईन क्लाउड SaaS</title>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --kb-primary: #00838f;
@@ -53,7 +55,7 @@
             align-items: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        header .title-area h1 { font-size: 18px; font-weight: 700; }
+        header .title-area h1 { font-size: 18px; font-weight: 700; cursor: pointer; }
         header .title-area p { font-size: 11px; opacity: 0.85; margin-top: 2px; }
         
         .lang-bar select { 
@@ -85,9 +87,6 @@
         
         #boxShare { grid-column: span 2; background: #e8f5e9; border-color: #c8e6c9; }
         #boxShare .box-title { color: #2e7d32; font-weight: 700; }
-
-        #boxAdmin { grid-column: span 2; background: #fff3e0; border-color: #ffe0b2; }
-        #boxAdmin .box-title { color: #e65100; font-weight: 700; }
         
         .btn-home { background: #eceff1; color: var(--kb-text); padding: 8px 14px; border: none; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 6px; }
         
@@ -162,24 +161,25 @@
 <div class="app-container">
     <!-- SaaS Login Screen Overlay -->
     <div id="loginOverlay">
-        <div style="font-size: 40px; margin-bottom: 10px;">📖</div>
+        <div style="font-size: 40px; margin-bottom: 10px;" ondblclick="secretAdminTrigger()">📖</div>
         <h2 style="font-size: 22px; margin-bottom: 6px;">गाडी खाताबही प्रो</h2>
-        <p style="font-size: 13px; opacity: 0.9; margin-bottom: 24px;">तुमचा व्यवसाय, तुमचा डिजिटल हिशोब</p>
+        <p style="font-size: 13px; opacity: 0.9; margin-bottom: 24px;">ऑनलाइन क्लाउड सेक्युर ट्रान्सपोर्ट डायरी</p>
         
         <div class="login-card">
             <h3 style="font-size: 15px; color: var(--kb-primary); margin-bottom: 12px;">👤 क्लाउड अकाउंट लॉगिन</h3>
             <div class="input-group">
-                <label>तुमचे नाव किंवा कंपनीचे नाव:</label>
+                <label>मालक / कंपनीचे नाव:</label>
                 <input type="text" id="loginUserName" placeholder="उदा. संभाजी ट्रान्सपोर्ट">
             </div>
             <div class="input-group">
-                <label>मोबाईल नंबर (युनिक आयडी):</label>
+                <label>मोबाईल नंबर:</label>
                 <input type="number" id="loginUserPhone" placeholder="9876543210">
             </div>
-            <button class="btn" style="margin-top: 6px;" onclick="userLogin()">ॲपमध्ये प्रवेश करा 🚀</button>
-            <div style="margin-top: 12px; text-align: center;">
-                <button style="background:none; border:none; color:var(--kb-primary); font-size:12px; font-weight:bold; cursor:pointer;" onclick="openAdminPanelPrompt()">🔐 मालक ॲडमिन लॉगिन</button>
+            <div class="input-group">
+                <label>गाडी / डंपर नंबर:</label>
+                <input type="text" id="loginVehicleNo" placeholder="उदा. MH 12 AB 1234">
             </div>
+            <button class="btn" style="margin-top: 6px;" onclick="userLogin()">क्लाउडवर कनेक्ट करा 🚀</button>
         </div>
     </div>
 
@@ -187,11 +187,10 @@
     <div id="subLockOverlay">
         <div class="sub-box">
             <h2 style="color: var(--kb-red); font-size: 20px; margin-bottom: 8px;">⚠️ सबस्क्रिप्शन संपले आहे!</h2>
-            <p style="font-size: 12.5px; color: var(--kb-gray); margin-bottom: 16px;">ॲपचा पुढील वापर सुरू ठेवण्यासाठी कृपया सबस्क्रिप्शन फी अदा करा.</p>
+            <p style="font-size: 12.5px; color: var(--kb-gray); margin-bottom: 16px;">मासिक (₹170) किंवा वार्षिक (₹1800) फी भरा.</p>
             <div style="background: #f4f6f8; padding: 12px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; text-align: left;">
-                <b>UPI ID / Google Pay / PhonePe:</b><br>
-                <span style="color: var(--kb-primary); font-size: 15px; font-weight: bold;">9876543210@upi</span><br>
-                <small style="color:var(--kb-gray);">फी भरून स्क्रीनशॉट WhatsApp वर पाठवा व ॲक्टिव्हेशन कोड मिळवा.</small>
+                <b>Google Pay / PhonePe / UPI:</b><br>
+                <span style="color: var(--kb-primary); font-size: 15px; font-weight: bold;">9876543210@upi</span>
             </div>
             <div class="input-group" style="text-align: left;">
                 <label>ॲक्टिव्हेशन कोड टाका:</label>
@@ -203,8 +202,8 @@
 
     <header>
         <div class="title-area">
-            <h1 id="appTitle">📖 गाडी खाताबही</h1>
-            <p id="appSubtitle"><span id="headerUserDisplay">युजर</span> | प्रो ट्रान्सपोर्ट</p>
+            <h1 id="appTitle" ondblclick="secretAdminTrigger()">📖 गाडी खाताबही</h1>
+            <p id="appSubtitle"><span id="headerUserDisplay">युजर</span> | <span id="headerVehicleDisplay" style="color:#a7ffeb;">गाडी</span> (क्लाउड)</p>
         </div>
         <div class="lang-bar">
             <select id="langSelect" onchange="changeLanguage(this.value)">
@@ -217,9 +216,8 @@
     <div class="content">
         <!-- PAGE 1: HOME -->
         <div id="pageHome" class="page active">
-            <!-- Quick Trip Counter & Earnings Widget -->
             <div class="card" style="background: linear-gradient(135deg, var(--kb-primary) 0%, var(--kb-primary-dark) 100%); color:white; margin-bottom:14px; padding:14px; border-radius:14px; box-shadow:var(--shadow);">
-                <div style="font-size: 11px; opacity: 0.9; text-transform: uppercase; letter-spacing:0.5px;">📅 आजचा धावता आढावा (Today's Summary)</div>
+                <div style="font-size: 11px; opacity: 0.9; text-transform: uppercase; letter-spacing:0.5px;">📅 आजचा धावता आढावा (Cloud Sync Active)</div>
                 <div style="display: flex; justify-content: space-between; margin-top: 8px; align-items:center;">
                     <div>आजच्या फेऱ्या: <b id="homeTodayTrips" style="font-size: 18px; color:#a7ffeb;">0</b></div>
                     <div>आजची कमाई: <b id="homeTodayFare" style="font-size: 18px; color:#a7ffeb;">₹0</b></div>
@@ -234,17 +232,12 @@
                 
                 <div class="menu-box" id="boxBackup" onclick="exportDataBackup()" style="background:#e8f5e9; border-color:#c8e6c9;">
                     <span class="box-icon">💾</span>
-                    <span class="box-title" style="color:#2e7d32;" id="txtBoxBackup">बॅकअप डाऊनलोड (डेटा सेफ)</span>
+                    <span class="box-title" style="color:#2e7d32;" id="txtBoxBackup">बॅकअप फाईल</span>
                 </div>
                 <div class="menu-box" id="boxRestore" onclick="document.getElementById('importBackupInput').click()" style="background:#e1f5fe; border-color:#b3e5fc;">
                     <span class="box-icon">📥</span>
-                    <span class="box-title" style="color:#0288d1;" id="txtBoxRestore">बॅकअप अपलोड</span>
+                    <span class="box-title" style="color:#0288d1;" id="txtBoxRestore">रिस्टोअर फाईल</span>
                     <input type="file" id="importBackupInput" style="display:none" accept=".json" onchange="importDataBackup(event)">
-                </div>
-
-                <div class="menu-box" id="boxAdmin" onclick="openAdminPanelPrompt()">
-                    <span class="box-icon">⚙️</span>
-                    <span class="box-title">मालक ॲडमिन पॅनेल (Profit)</span>
                 </div>
 
                 <div class="menu-box" id="boxShare" onclick="shareThisApp()"><span class="box-icon">📲</span><span class="box-title" id="txtBoxShare">ॲप मित्रांना शेअर करा</span></div>
@@ -403,7 +396,7 @@
             </div>
 
             <h3 style="font-size: 13px; color: #6a1b9a; margin: 12px 0 8px;">
-                ⛽ मागील इंधन नोंदी (नफा-तोटा पाहण्यासाठी क्लिक करा):
+                ⛽ मागील इंधन नोंदी:
             </h3>
             <div id="fuelHistoryList"></div>
         </div>
@@ -416,35 +409,35 @@
             <div id="fuelCycleTripsList"></div>
         </div>
 
-        <!-- PAGE 8: ADMIN DASHBOARD (Profit & Loss) -->
+        <!-- PAGE 8: HIDDEN ADMIN DASHBOARD -->
         <div id="pageAdmin" class="page">
             <button class="btn-home" onclick="switchPage('home')">🏠 <span>मुख्य मेनू</span></button>
             <div class="card" style="background: #e0f2f1; border-color: #80cbc4;">
-                <h2 style="font-size: 16px; color: var(--kb-primary-dark); margin-bottom: 4px;">⚙️ मालक ॲडमिन डॅशबोर्ड</h2>
-                <p style="font-size: 11.5px; color: var(--kb-gray);">तुमच्या ॲपच्या सबस्क्रिप्शन कमाईचा हिशोब</p>
+                <h2 style="font-size: 16px; color: var(--kb-primary-dark); margin-bottom: 4px;">⚙️ गुप्त मालक ॲडमिन पॅनेल</h2>
+                <p style="font-size: 11.5px; color: var(--kb-gray);">क्लाउड सबस्क्रिप्शन ट्रॅकर</p>
             </div>
 
             <div class="kb-summary-box">
-                <div class="kb-sum-item"><p>एकूण सबस्क्राइबर्स</p><h3 id="adminTotalUsers" style="color:var(--kb-primary)">0</h3></div>
-                <div class="kb-sum-item"><p>एकूण कमाई (Revenue)</p><h3 id="adminTotalRevenue" style="color:var(--kb-green)">₹0</h3></div>
+                <div class="kb-sum-item"><p>एकूण युजर्स</p><h3 id="adminTotalUsers" style="color:var(--kb-primary)">0</h3></div>
+                <div class="kb-sum-item"><p>एकूण कमाई</p><h3 id="adminTotalRevenue" style="color:var(--kb-green)">₹0</h3></div>
             </div>
 
             <div class="card" style="border-left: 4px solid var(--kb-green);">
-                <h3 style="font-size: 13px; margin-bottom: 8px; color: #2e7d32;">💵 नवीन सबस्क्रिप्शन पेमेंट नोंदवा:</h3>
+                <h3 style="font-size: 13px; margin-bottom: 8px; color: #2e7d32;">💵 सबस्क्रिप्शन फी जमा करा:</h3>
                 <div class="input-group">
-                    <label>युजरचे नाव / डंपर मालक:</label>
+                    <label>मालक नाव:</label>
                     <input type="text" id="adminSubName" placeholder="उदा. गणेश ट्रान्सपोर्ट">
                 </div>
                 <div class="input-row">
                     <div class="input-group">
                         <label>रक्कम (₹):</label>
-                        <input type="number" id="adminSubAmount" value="1000" placeholder="उदा. 1000">
+                        <input type="number" id="adminSubAmount" value="170">
                     </div>
                     <div class="input-group">
-                        <label>कालावधी:</label>
+                        <label>प्लॅन:</label>
                         <select id="adminSubDays">
-                            <option value="30">30 दिवस (1 महिना)</option>
-                            <option value="365">365 दिवस (1 वर्ष)</option>
+                            <option value="30">मासिक (30 दिवस - ₹170)</option>
+                            <option value="365">वार्षिक (365 दिवस - ₹1800)</option>
                         </select>
                     </div>
                 </div>
@@ -452,7 +445,7 @@
             </div>
 
             <div class="card" style="border-left: 4px solid var(--kb-primary);">
-                <h3 style="font-size: 13px; margin-bottom: 10px; color: var(--kb-primary);">📋 सर्व सबस्क्रायबर्सची यादी:</h3>
+                <h3 style="font-size: 13px; margin-bottom: 10px; color: var(--kb-primary);">📋 सबस्क्रायबर्स यादी:</h3>
                 <div id="adminSubscribersList"></div>
             </div>
         </div>
@@ -460,1011 +453,424 @@
 </div>
 
 <script>
+    const SUPABASE_URL = 'https://qhpnjutrjhgjzaagvlcp.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_68uPVT5UZN9nVyVC8IV3ug_DufgNR8w';
+    
+    let supabaseClient = null;
+    try {
+        if(SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+    } catch(e) { console.log("Cloud init note:", e); }
+
     let currentUser = localStorage.getItem('gadiLoggedInUser') || "";
     let tripDatabase = [];
     let fuelDatabase = [];
     let advanceDatabase = {};
     let customerLedger = [];
-
-    // Admin Database storage
     let adminSubList = JSON.parse(localStorage.getItem('gadiAdminSubs')) || [];
 
-    function checkLoginStatus() {
+    async function checkLoginStatus() {
         if (!currentUser) {
             document.getElementById('loginOverlay').style.display = 'flex';
         } else {
             document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('headerUserDisplay').innerText = currentUser.split('_')[0];
-            loadUserData();
+            let parts = currentUser.split('_');
+            document.getElementById('headerUserDisplay').innerText = parts[0];
+            document.getElementById('headerVehicleDisplay').innerText = parts[2] || 'गाडी';
+            await loadUserData();
             checkSubscription();
         }
     }
 
-    function userLogin() {
+    async function userLogin() {
         let name = document.getElementById('loginUserName').value.trim();
         let phone = document.getElementById('loginUserPhone').value.trim();
+        let vehicle = document.getElementById('loginVehicleNo').value.trim() || "Dumper 1";
 
         if (!name || phone.length < 10) {
-            alert("कृपया तुमचे नाव आणि वैध मोबाईल नंबर टाका!");
+            alert("कृपया नाव आणि वैध मोबाईल नंबर टाका!");
             return;
         }
 
-        currentUser = `${name}_${phone}`;
+        currentUser = `${name}_${phone}_${vehicle}`;
         localStorage.setItem('gadiLoggedInUser', currentUser);
-        alert(`✅ स्वागत आहे, ${name}! तुमचे खाते तयार झाले.`);
+        alert(`✅ स्वागत आहे, ${name} (${vehicle})!`);
         document.getElementById('loginOverlay').style.display = 'none';
-        loadUserData();
+        await loadUserData();
         checkSubscription();
         location.reload();
     }
 
-    function openAdminPanelPrompt() {
-        let pass = prompt("मालक गुप्त पासवर्ड टाका (Admin Password):");
+    // 🔒 Hidden Admin Trigger (Double click on title icon 📖)
+    function secretAdminTrigger() {
+        let pass = prompt("मालक गुप्त पासवर्ड टाका:");
         if (pass === "admin123" || pass === "7777") {
             document.getElementById('loginOverlay').style.display = 'none';
             switchPage('admin');
-        } else if (pass !== null) {
-            alert("❌ चुकीचा पासवर्ड!");
-        }
+        } else if (pass !== null) { alert("❌ चुकीचा पासवर्ड!"); }
     }
 
-    function loadUserData() {
+    async function loadUserData() {
+        if (supabaseClient) {
+            try {
+                let { data, error } = await supabaseClient.from('gadi_data').select('*').eq('user_key', currentUser).maybeSingle();
+                if(data) {
+                    tripDatabase = data.trips || [];
+                    fuelDatabase = data.fuel || [];
+                    advanceDatabase = data.advances || {};
+                    customerLedger = data.ledger || [];
+                    return;
+                }
+            } catch(err) { console.log("Cloud load fallback to local", err); }
+        }
         tripDatabase = JSON.parse(localStorage.getItem('gadiTrips_' + currentUser)) || [];
         fuelDatabase = JSON.parse(localStorage.getItem('gadiFuel_' + currentUser)) || [];
         advanceDatabase = JSON.parse(localStorage.getItem('gadiAdvance_' + currentUser)) || {};
         customerLedger = JSON.parse(localStorage.getItem('gadiLedger_' + currentUser)) || [];
     }
 
-    function saveUserData() {
+    async function saveUserData() {
         localStorage.setItem('gadiTrips_' + currentUser, JSON.stringify(tripDatabase));
         localStorage.setItem('gadiFuel_' + currentUser, JSON.stringify(fuelDatabase));
         localStorage.setItem('gadiAdvance_' + currentUser, JSON.stringify(advanceDatabase));
         localStorage.setItem('gadiLedger_' + currentUser, JSON.stringify(customerLedger));
+
+        if (supabaseClient) {
+            try {
+                await supabaseClient.from('gadi_data').upsert({
+                    user_key: currentUser,
+                    trips: tripDatabase,
+                    fuel: fuelDatabase,
+                    advances: advanceDatabase,
+                    ledger: customerLedger
+                }, { onConflict: 'user_key' });
+            } catch(err) { console.log("Cloud sync error:", err); }
+        }
+    }
+
+    // Fixed Import Backup Functionality with Supabase Sync
+    function importDataBackup(event) {
+        let file = event.target.files[0]; if (!file) return;
+        let reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                let data = JSON.parse(e.target.result);
+                if (data.trips && Array.isArray(data.trips)) {
+                    tripDatabase = data.trips; 
+                    fuelDatabase = data.fuel || []; 
+                    advanceDatabase = data.advances || {};
+                    customerLedger = data.ledger || [];
+                    await saveUserData(); 
+                    alert("✅ जुना डेटा यशस्वीरित्या क्लाउडवर रिस्टोअर झाला!"); 
+                    location.reload();
+                } else { 
+                    alert("❌ अयोग्य बॅकअप फाईल स्वरूप!"); 
+                }
+            } catch(err) { 
+                alert("❌ फाईल वाचण्यात त्रुटी आली. कृपया योग्य JSON फाईल निवडा."); 
+            }
+        };
+        reader.readAsText(file);
     }
 
     function checkSubscription() {
         let expiryDate = localStorage.getItem('gadiSubExpiry_' + currentUser);
         if (!expiryDate) {
-            let d = new Date();
-            d.setDate(d.getDate() + 7); // 7 days free trial
+            let d = new Date(); d.setDate(d.getDate() + 7);
             expiryDate = d.toISOString().split('T')[0];
             localStorage.setItem('gadiSubExpiry_' + currentUser, expiryDate);
         }
-
         let today = new Date().toISOString().split('T')[0];
-        if (today > expiryDate) {
-            document.getElementById('subLockOverlay').style.display = 'flex';
-        } else {
-            document.getElementById('subLockOverlay').style.display = 'none';
-        }
+        if (today > expiryDate) { document.getElementById('subLockOverlay').style.display = 'flex'; }
+        else { document.getElementById('subLockOverlay').style.display = 'none'; }
     }
 
     function verifyActivationCode() {
         let code = document.getElementById('activationCodeInput').value.trim();
         if (code === "7777" || code === "GADI30") {
-            let d = new Date();
-            d.setDate(d.getDate() + 30);
+            let d = new Date(); d.setDate(d.getDate() + 30);
             localStorage.setItem('gadiSubExpiry_' + currentUser, d.toISOString().split('T')[0]);
-            alert("✅ सबस्क्रिप्शन यशस्वीरित्या 30 दिवसांसाठी सुरू झाले!");
+            alert("✅ सबस्क्रिप्शन सुरू झाले!");
             document.getElementById('subLockOverlay').style.display = 'none';
             location.reload();
-        } else {
-            alert("❌ चुकीचा कोड! कृपया योग्य ॲक्टिव्हेशन कोड टाका.");
-        }
+        } else { alert("❌ चुकीचा कोड!"); }
     }
 
     function addAdminSubscriptionIncome() {
         let name = document.getElementById('adminSubName').value.trim();
-        let amount = parseFloat(document.getElementById('adminSubAmount').value) || 0;
+        let amount = parseFloat(document.getElementById('adminSubAmount').value) || 170;
         let days = parseInt(document.getElementById('adminSubDays').value) || 30;
-
-        if(!name || amount <= 0) {
-            alert("कृपया नाव आणि वैध रक्कम टाका!");
-            return;
-        }
-
+        if(!name) { alert("नाव टाका!"); return; }
         let today = new Date().toISOString().split('T')[0];
-        let expDate = new Date();
-        expDate.setDate(expDate.getDate() + days);
-        let expStr = expDate.toISOString().split('T')[0];
-
-        adminSubList.unshift({
-            id: Date.now(),
-            name: name,
-            amount: amount,
-            date: today,
-            expiry: expStr,
-            plan: days + ' दिवस'
-        });
-
+        let expDate = new Date(); expDate.setDate(expDate.getDate() + days);
+        adminSubList.unshift({ id: Date.now(), name, amount, date: today, expiry: expDate.toISOString().split('T')[0], plan: days === 365 ? 'वार्षिक (₹1800)' : 'मासिक (₹170)' });
         localStorage.setItem('gadiAdminSubs', JSON.stringify(adminSubList));
-        document.getElementById('adminSubName').value = "";
-        alert("✅ सबस्क्रिप्शन कमाई यशस्वीरित्या नोंदवली गेली!");
+        document.getElementById('adminSubName').value = ""; alert("✅ जमा झाले!");
         renderAdminDashboard();
     }
 
     function renderAdminDashboard() {
-        let totalRev = 0;
-        adminSubList.forEach(s => totalRev += parseFloat(s.amount) || 0);
-
+        let rev = 0; adminSubList.forEach(s => rev += parseFloat(s.amount)||0);
         document.getElementById('adminTotalUsers').innerText = adminSubList.length;
-        document.getElementById('adminTotalRevenue').innerText = '₹' + totalRev.toFixed(2);
-
-        let listEl = document.getElementById('adminSubscribersList');
-        if(adminSubList.length === 0) {
-            listEl.innerHTML = `<p style="text-align:center; color:#888; font-size:12px;">कोणतीही नोंद नाही</p>`;
-            return;
-        }
-
-        let today = new Date().toISOString().split('T')[0];
-        listEl.innerHTML = adminSubList.map(s => {
-            let isExpired = today > s.expiry;
-            return `
-                <div class="history-item" style="border-left: 4px solid ${isExpired ? 'var(--kb-red)' : 'var(--kb-green)'};">
-                    <div class="history-header">
-                        <span>👤 ${s.name}</span>
-                        <span style="color:var(--kb-green);">+₹${s.amount}</span>
-                    </div>
-                    <div style="font-size: 11.5px; color: var(--kb-gray);">
-                        📅 सुरू: ${s.date} | मुदत: ${s.expiry} (${s.plan})
-                    </div>
-                    <div style="font-size: 11px; font-weight: bold; margin-top: 3px; color: ${isExpired ? 'var(--kb-red)' : 'var(--kb-primary)'};">
-                        ${isExpired ? '❌ सबस्क्रिप्शन संपले आहे' : '✅ चालू आहे'}
-                    </div>
-                </div>
-            `;
-        }).join('');
+        document.getElementById('adminTotalRevenue').innerText = '₹' + rev.toFixed(2);
+        document.getElementById('adminSubscribersList').innerHTML = adminSubList.length === 0 ? `<p style="text-align:center;">नोंद नाही</p>` :
+            adminSubList.map(s => `<div class="history-item"><b>👤 ${s.name}</b> <span style="color:green;">+₹${s.amount}</span><br><small>मुदत: ${s.expiry} (${s.plan})</small></div>`).join('');
     }
 
     const dictionary = {
         mr: {
             appTitleHome: "📖 गाडी खाताबही", appSubtitleHome: "प्रोफेशनल ट्रान्सपोर्ट व इंधन डायरी",
-            appTitleEntry: "📌 नवीन ट्रिप नोंद",
-            appTitleSummary: "📊 नफा-तोटा & बाकी", appTitleHistory: "📋 ट्रिप्स इतिहास & दैनिक पॅनल", appTitleFuel: "⛽ इंधन डायरी",
-            appTitleCust: "👤 ग्राहक खातावही पासबूक", appTitleFuelCycle: "⛽ इंधन सायकल विश्लेषण",
+            appTitleEntry: "📌 नवीन ट्रिप नोंद", appTitleSummary: "📊 नफा-तोटा & बाकी", appTitleHistory: "📋 ट्रिप्स इतिहास", appTitleFuel: "⛽ इंधन डायरी",
             boxEntry: "नवीन ट्रिप नोंद", boxSummary: "नफा-तोटा & बाकी", boxHistory: "इतिहास & दैनिक पॅनल", boxFuel: "इंधन डायरी", 
-            boxBackup: "बॅकअप डाऊनलोड (डेटा सेफ)", boxRestore: "बॅकअप अपलोड", boxShare: "ॲप मित्रांना शेअर करा",
+            boxBackup: "बॅकअप फाईल", boxRestore: "रिस्टोअर फाईल", boxShare: "ॲप मित्रांना शेअर करा",
             backHome: "मुख्य मेनू", tripDate: "📅 ट्रिप तारीख:", fromCity: "🚩 कुठून:", toCity: "🏁 कुठे:", typeSelectText: "🛠️ भाड्याचा प्रकार:",
-            perKm: "किमी नुसार", fixRate: "फिक्स / लोकल", ratePerKm: "भाडे दर (प्रति किमी):", custName: "ग्राहकाचे नाव:", custPhone: "फोन नंबर (व्हॉट्सॲप):",
+            perKm: "किमी नुसार", fixRate: "फिक्स / लोकल", ratePerKm: "भाडे दर (प्रति किमी):", custName: "ग्राहकाचे नाव:", custPhone: "फोन नंबर:",
             startKm: "सुरुवात किमी:", endKm: "शेवट किमी:", fixFare: "ठरलेले एकूण भाडे:", paidAmt: "सुरुवातीला जमा:", 
-            driverBhatta: "ड्रायव्हर भत्ता (₹):", otherExp: "इतर खर्च (टोल):", tripNote: "📝 टीप / नोंद:",
-            saveBtn: "ट्रिप सेव्ह करा 🚀",
+            driverBhatta: "ड्रायव्हर भत्ता (₹):", otherExp: "इतर खर्च:", tripNote: "📝 टीप / नोंद:", saveBtn: "ट्रिप सेव्ह करा 🚀",
             fuelTitle: "⛽ नवीन इंधन नोंद जोडा:", fuelSelectType: "इंधनाचा प्रकार:", fuelAmtText: "रुपये खर्च:", fuelKmText: "ओडोमीटर (KM):", saveFuelBtn: "इंधन सेव्ह करा ✅",
             totalTrips: "एकूण ट्रिप्स:", totalFare: "एकूण भाडे:", totalPaid: "एकूण जमा:", totalBal: "येणे बाकी (Due):",
             custBalTitle: "👤 ग्राहकनिहाय येणे बाकी (Pending):", alertSave: "ट्रिप सेव्ह झाली!", alertFuel: "इंधन नोंदले गेले!", alertFields: "कृपया सर्व माहिती भरा!",
-            txtRoute: "🗺️ रूट: ", txtRun: "धाव: ", txtPaid: "जमा: ", txtBal: "बाकी: ", btnDeleteText: "🗑️", btnCollectText: "💵 जमा", noBalText: "सर्व ग्राहकांचे पेमेंट पूर्ण जमा आहे! 👍", noRecText: "कोणतीही नोंद नाही.", paidFull: "पूर्ण जमा ✅",
+            txtRoute: "🗺️ रूट: ", txtRun: "धाव: ", txtPaid: "जमा: ", txtBal: "बाकी: ", btnDeleteText: "🗑️", btnCollectText: "💵 जमा", noRecText: "कोणतीही नोंद नाही.",
             btnWaSend: "💬", directPayTitle: "💵 थेट ग्राहक पेमेंट जमा करा:"
         },
         en: {
             appTitleHome: "📖 Vehicle Ledger", appSubtitleHome: "Professional Transport & Fuel Diary",
-            appTitleEntry: "📌 New Trip Entry",
-            appTitleSummary: "📊 Profit-Loss & Due", appTitleHistory: "📋 History & Daily Panel", appTitleFuel: "⛽ Fuel Diary",
-            appTitleCust: "👤 Customer Ledger Passbook", appTitleFuelCycle: "⛽ Fuel Cycle Analytics",
+            appTitleEntry: "📌 New Trip Entry", appTitleSummary: "📊 Profit-Loss & Due", appTitleHistory: "📋 History", appTitleFuel: "⛽ Fuel Diary",
             boxEntry: "New Trip", boxSummary: "Profit & Due", boxHistory: "History", boxFuel: "Fuel Diary", 
             boxBackup: "Download Backup", boxRestore: "Restore Backup", boxShare: "Share App",
             backHome: "Main Menu", tripDate: "📅 Trip Date:", fromCity: "🚩 From:", toCity: "🏁 To:", typeSelectText: "🛠️ Fare Type:",
             perKm: "Per KM Rate", fixRate: "Fixed", ratePerKm: "Rate (Per KM):", custName: "Customer Name:", custPhone: "Phone Number:",
             startKm: "Start KM:", endKm: "End KM:", fixFare: "Fixed Fare:", paidAmt: "Initial Paid:", 
-            driverBhatta: "Driver Bhatta (₹):", otherExp: "Other Exp:", tripNote: "📝 Note:",
-            saveBtn: "Save Trip 🚀",
+            driverBhatta: "Driver Bhatta (₹):", otherExp: "Other Exp:", tripNote: "📝 Note:", saveBtn: "Save Trip 🚀",
             fuelTitle: "⛽ Add Fuel Entry:", fuelSelectType: "Fuel Type:", fuelAmtText: "Amount Spent ₹:", fuelKmText: "Odometer KM:", saveFuelBtn: "Save Fuel ✅",
             totalTrips: "Total Trips:", totalFare: "Total Earnings:", totalPaid: "Total Paid:", totalBal: "Total Pending Due:",
             custBalTitle: "👤 Customer Pending Balances:", alertSave: "Trip saved successfully!", alertFuel: "Fuel recorded!", alertFields: "Please fill all fields!",
-            txtRoute: "🗺️ Route: ", txtRun: "Run: ", txtPaid: "Paid: ", txtBal: "Balance: ", btnDeleteText: "🗑️", btnCollectText: "💵 Pay", noBalText: "All customer payments cleared! 👍", noRecText: "No records found.", paidFull: "Fully Paid ✅",
+            txtRoute: "🗺️ Route: ", txtRun: "Run: ", txtPaid: "Paid: ", txtBal: "Balance: ", btnDeleteText: "🗑️", btnCollectText: "💵 Pay", noRecText: "No records found.",
             btnWaSend: "💬", directPayTitle: "💵 Direct Customer Payment:"
         }
     };
+    let currentLang = 'mr';
 
-    window.onload = function() {
-        checkLoginStatus();
+    window.onload = async function() {
+        await checkLoginStatus();
         const today = new Date().toISOString().split('T')[0];
         const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-        
-        setVal('tripDate', today);
-        setVal('fuelDate', today);
-        setVal('directPayDate', today);
-        setVal('historyDateFilter', today);
-        setVal('filterMonth', today.slice(0, 7));
-        changeLanguage('mr');
-        updateHomeStats();
+        setVal('tripDate', today); setVal('fuelDate', today); setVal('directPayDate', today);
+        setVal('historyDateFilter', today); setVal('filterMonth', today.slice(0, 7));
+        changeLanguage('mr'); updateHomeStats();
     };
 
     function updateHomeStats() {
         const today = new Date().toISOString().split('T')[0];
         let tCount = 0, tFare = 0;
-        tripDatabase.forEach(t => {
-            if(t.date === today) {
-                tCount++;
-                tFare += parseFloat(t.fare) || 0;
-            }
-        });
-        const tEl = document.getElementById('homeTodayTrips');
-        const fEl = document.getElementById('homeTodayFare');
-        if(tEl) tEl.innerText = tCount;
-        if(fEl) fEl.innerText = '₹' + tFare.toFixed(2);
+        tripDatabase.forEach(t => { if(t.date === today) { tCount++; tFare += parseFloat(t.fare) || 0; } });
+        document.getElementById('homeTodayTrips').innerText = tCount;
+        document.getElementById('homeTodayFare').innerText = '₹' + tFare.toFixed(2);
     }
 
     function setTodayFilter() {
-        const today = new Date().toISOString().split('T')[0];
-        const dateInput = document.getElementById('historyDateFilter');
-        if(dateInput) { dateInput.value = today; renderHistory(); }
+        document.getElementById('historyDateFilter').value = new Date().toISOString().split('T')[0];
+        renderHistory();
     }
 
     function sendDailyWhatsAppSummary() {
-        const dateFilterInput = document.getElementById('historyDateFilter');
-        const selectedDate = dateFilterInput ? dateFilterInput.value : new Date().toISOString().split('T')[0];
-        
-        let filteredTrips = tripDatabase.filter(t => t.date === selectedDate);
-        if(filteredTrips.length === 0) {
-            alert(currentLang === 'mr' ? "या तारखेला कोणतीही ट्रिप नोंद नाही!" : "No trips found for this date!");
-            return;
-        }
-
-        let totalFare = 0, totalPaid = 0, totalBal = 0;
-        filteredTrips.forEach(t => {
-            totalFare += parseFloat(t.fare) || 0;
-            totalPaid += parseFloat(t.paid) || 0;
-            totalBal += parseFloat(t.balance) || 0;
-        });
-
-        let tripsListText = filteredTrips.map(t => {
-            let nTxt = t.note ? ` [टीप: ${t.note}]` : '';
-            return `• ${t.name} (${t.from} ➔ ${t.to})${nTxt} | भाडे: ₹${t.fare} | जमा: ₹${t.paid}`;
-        }).join('%0A');
-
-        let msg = currentLang === 'mr'
-            ? `📖 *गाडी खाताबही - दैनिक रिपोर्ट*%0A📅 *तारीख:* ${selectedDate}%0A🚗 *ट्रिप्स:* ${filteredTrips.length}%0A💰 *कमाई (Fare):* ₹${totalFare.toFixed(2)}%0A💵 *जमा रक्कम:* ₹${totalPaid.toFixed(2)}%0A🔴 *बाकी उधारी:* ₹${totalBal.toFixed(2)}%0A%0A*तपशील:*%0A${tripsListText}%0A%0A_द्वारा: गाडी खाताबही ॲप_ 🚖`
-            : `📖 *Daily Report*%0A📅 *Date:* ${selectedDate}%0A🚗 *Trips:* ${filteredTrips.length}%0A💰 *Fare:* ₹${totalFare.toFixed(2)}%0A💵 *Paid:* ₹${totalPaid.toFixed(2)}%0A🔴 *Balance:* ₹${totalBal.toFixed(2)}`;
-
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
+        let date = document.getElementById('historyDateFilter').value;
+        let trips = tripDatabase.filter(t => t.date === date);
+        if(trips.length === 0) { alert("नोंद नाही!"); return; }
+        let tf = 0, tp = 0, tb = 0;
+        trips.forEach(t => { tf += parseFloat(t.fare)||0; tp += parseFloat(t.paid)||0; tb += parseFloat(t.balance)||0; });
+        let list = trips.map(t => `• ${t.name} (${t.from} ➔ ${t.to}) | भाडे: ₹${t.fare}`).join('%0A');
+        window.open(`https://wa.me/?text=📖 *दैनिक रिपोर्ट* (${date})%0A🚗 ट्रिप्स: ${trips.length}%0A💰 कमाई: ₹${tf}%0A%0A${list}`, '_blank');
     }
 
     function changeLanguage(lang) {
         currentLang = lang;
-        const d = dictionary[lang];
-        const setTxt = (id, txt) => { const el = document.getElementById(id); if(el) el.innerText = txt; };
-
-        setTxt('lblFromCity', d.fromCity);
-        setTxt('lblToCity', d.toCity);
-        setTxt('lblTripDate', d.tripDate);
-        setTxt('txtBoxEntry', d.boxEntry);
-        setTxt('txtBoxSummary', d.boxSummary);
-        setTxt('txtBoxHistory', d.boxHistory);
-        setTxt('txtBoxFuel', d.boxFuel);
-        setTxt('txtBoxBackup', d.boxBackup);
-        setTxt('txtBoxRestore', d.boxRestore);
-        setTxt('txtBoxShare', d.boxShare);
-
+        let d = dictionary[lang];
+        const setTxt = (id, txt) => { let el = document.getElementById(id); if(el) el.innerText = txt; };
+        setTxt('lblFromCity', d.fromCity); setTxt('lblToCity', d.toCity); setTxt('lblTripDate', d.tripDate);
+        setTxt('txtBoxEntry', d.boxEntry); setTxt('txtBoxSummary', d.boxSummary); setTxt('txtBoxHistory', d.boxHistory); setTxt('txtBoxFuel', d.boxFuel);
+        setTxt('txtBoxBackup', d.boxBackup); setTxt('txtBoxRestore', d.boxRestore); setTxt('txtBoxShare', d.boxShare);
         document.querySelectorAll('.txtBackHome').forEach(el => el.innerText = d.backHome);
-        setTxt('lblTypeSelectText', d.typeSelectText);
-        setTxt('optPerKm', d.perKm);
-        setTxt('optFixRate', d.fixRate);
-        setTxt('lblRatePerKm', d.ratePerKm);
-        setTxt('lblCustName', d.custName);
-        setTxt('lblCustPhone', d.custPhone);
-        setTxt('lblStartReading', d.startKm);
-        setTxt('lblEndReading', d.endKm);
-        setTxt('lblAmountPaid', d.paidAmt);
-        setTxt('lblDriverBhatta', d.driverBhatta);
-        setTxt('lblOtherExpenses', d.otherExp);
-        setTxt('lblTripNote', d.tripNote);
-        setTxt('btnSaveTrip', d.saveBtn);
-
-        setTxt('lblFuelTitle', d.fuelTitle);
-        setTxt('lblFuelSelectType', d.fuelSelectType);
-        setTxt('lblFuelAmtText', d.fuelAmtText);
-        setTxt('lblFuelKmText', d.fuelKmText);
-        setTxt('btnSaveFuel', d.saveFuelBtn);
-        setTxt('lblCustBalTitle', d.custBalTitle);
-        setTxt('lblDirectPayTitle', d.directPayTitle);
+        setTxt('lblTypeSelectText', d.typeSelectText); setTxt('optPerKm', d.perKm); setTxt('optFixRate', d.fixRate);
+        setTxt('lblRatePerKm', d.ratePerKm); setTxt('lblCustName', d.custName); setTxt('lblCustPhone', d.custPhone);
+        setTxt('lblStartReading', d.startKm); setTxt('lblEndReading', d.endKm); setTxt('lblAmountPaid', d.paidAmt);
+        setTxt('lblDriverBhatta', d.driverBhatta); setTxt('lblOtherExpenses', d.otherExp); setTxt('lblTripNote', d.tripNote);
+        setTxt('btnSaveTrip', d.saveBtn); setTxt('lblFuelTitle', d.fuelTitle); setTxt('lblFuelSelectType', d.fuelSelectType);
+        setTxt('lblFuelAmtText', d.fuelAmtText); setTxt('lblFuelKmText', d.fuelKmText); setTxt('btnSaveFuel', d.saveFuelBtn);
+        setTxt('lblCustBalTitle', d.custBalTitle); setTxt('lblDirectPayTitle', d.directPayTitle);
     }
 
     function switchPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const targetId = 'page' + pageId.charAt(0).toUpperCase() + pageId.slice(1);
-        const target = document.getElementById(targetId);
+        let target = document.getElementById('page' + pageId.charAt(0).toUpperCase() + pageId.slice(1));
         if(target) target.classList.add('active');
-        
-        const d = dictionary[currentLang];
-        const titleEl = document.getElementById('appTitle');
-        const subTitleEl = document.getElementById('appSubtitle');
-
-        if(pageId === 'home') { 
-            if(titleEl) titleEl.innerText = d.appTitleHome; 
-            if(subTitleEl) subTitleEl.innerHTML = `<span id="headerUserDisplay">${currentUser.split('_')[0]}</span> | प्रो ट्रान्सपोर्ट`;
-            updateHomeStats();
-        }
-        if(pageId === 'entry' && titleEl) titleEl.innerText = d.appTitleEntry;
-        if(pageId === 'summary') { 
-            if(titleEl) titleEl.innerText = d.appTitleSummary; 
-            renderSummary(); 
-            populateDirectPayDropdown(); 
-        }
-        if(pageId === 'history') { 
-            if(titleEl) titleEl.innerText = d.appTitleHistory; 
-            renderHistory(); 
-        }
-        if(pageId === 'fuel') { 
-            if(titleEl) titleEl.innerText = d.appTitleFuel; 
-            renderFuel(); 
-        }
-        if(pageId === 'admin') {
-            if(titleEl) titleEl.innerText = "⚙️ मालक ॲडमिन पॅनेल";
-            renderAdminDashboard();
-        }
-        if(pageId === 'customerDetails' && titleEl) titleEl.innerText = d.appTitleCust;
-        if(pageId === 'fuelCycle' && titleEl) titleEl.innerText = d.appTitleFuelCycle;
+        if(pageId === 'home') updateHomeStats();
+        if(pageId === 'summary') { renderSummary(); populateDirectPayDropdown(); }
+        if(pageId === 'history') renderHistory();
+        if(pageId === 'fuel') renderFuel();
+        if(pageId === 'admin') renderAdminDashboard();
     }
 
     function exportDataBackup() {
-        const backupData = {
-            appName: "GadiKhataBook",
-            user: currentUser,
-            exportDate: new Date().toISOString(),
-            trips: tripDatabase,
-            fuel: fuelDatabase,
-            advances: advanceDatabase,
-            ledger: customerLedger
-        };
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `Gadi_KhataBook_${currentUser}_${new Date().toISOString().split('T')[0]}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-        alert(currentLang === 'mr' ? "✅ बॅकअप फाईल डाऊनलोड झाली!" : "✅ Backup downloaded!");
-    }
-
-    function importDataBackup(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const fileReader = new FileReader();
-        fileReader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (data.trips && Array.isArray(data.trips)) {
-                    tripDatabase = data.trips;
-                    fuelDatabase = data.fuel || [];
-                    advanceDatabase = data.advances || {};
-                    customerLedger = data.ledger || [];
-                    saveUserData();
-                    alert(currentLang === 'mr' ? "✅ डेटा यशस्वीरित्या रिस्टोअर झाला!" : "✅ Data restored!");
-                    location.reload();
-                } else {
-                    alert(currentLang === 'mr' ? "❌ अयोग्य बॅकअप फाईल!" : "❌ Invalid file!");
-                }
-            } catch (err) {
-                alert(currentLang === 'mr' ? "❌ फाईल वाचण्यात त्रुटी आली." : "❌ Error reading file.");
-            }
-        };
-        fileReader.readAsText(file);
-    }
-
-    function shareThisApp() {
-        let appLink = window.location.href;
-        let textText = `*गाडी खाताबही ॲप* 📖%0A%0Aगाडी भाडे, ट्रान्सपोर्ट हिशोब व इंधन डायरीसाठी हे प्रोफेशनल ॲप वापर!%0A%0A🔗 ${appLink}`;
-        window.open(`https://wa.me/?text=${textText}`, '_blank');
-    }
-
-    function sendWhatsAppBill(id) {
-        let trip = tripDatabase.find(t => t.id === id);
-        if(!trip) return;
-
-        if(!trip.phone || trip.phone.trim() === "") {
-            let userPhone = prompt(currentLang === 'mr' ? "ग्राहकाचा व्हॉट्सॲप नंबर टाका:" : "Enter customer WhatsApp number:");
-            if(userPhone) {
-                trip.phone = userPhone.trim();
-                saveUserData();
-            } else { return; }
-        }
-
-        let noteText = trip.note ? `%0A📝 टीप: ${trip.note}` : '';
-        let message = currentLang === 'mr' 
-            ? `नमस्कार *${trip.name}*,%0A%0Aट्रिप तपशील:%0A📅 तारीख: ${trip.date}%0A🗺️ रूट: ${trip.from} ➔ ${trip.to}${noteText}%0A💰 एकूण भाडे: ₹${trip.fare}%0A💵 जमा: ₹${trip.paid}%0A🔴 बाकी उधारी: ₹${trip.balance}%0A%0A*धन्यवाद!* 🚖`
-            : `Hello *${trip.name}*,%0A%0ATrip Statement:%0A📅 Date: ${trip.date}%0A🗺️ Route: ${trip.from} ➔ ${trip.to}%0A💰 Total Fare: ₹${trip.fare}%0A💵 Paid: ₹${trip.paid}%0A🔴 Balance: ₹${trip.balance}`;
-
-        window.open(`https://wa.me/91${trip.phone}?text=${message}`, '_blank');
-    }
-
-    function sendCustomerFullWhatsAppSummary(custName) {
-        let trips = tripDatabase.filter(t => t.name === custName);
-        if(trips.length === 0) return;
-
-        let phone = trips[0].phone || "";
-        if(!phone) {
-            let userPhone = prompt(currentLang === 'mr' ? "व्हॉट्सॲप नंबर टाका:" : "Enter WhatsApp number:");
-            if(userPhone) {
-                phone = userPhone.trim();
-                trips.forEach(t => t.phone = phone);
-                saveUserData();
-            } else { return; }
-        }
-
-        let totalF = 0, totalP = 0, totalB = 0;
-        trips.forEach(t => {
-            totalF += parseFloat(t.fare) || 0;
-            totalP += parseFloat(t.paid) || 0;
-            totalB += parseFloat(t.balance) || 0;
-        });
-
-        let custLogs = customerLedger.filter(l => l.name === custName);
-        let passbookText = "";
-        if(custLogs.length > 0) {
-            passbookText = `%0A%0A📝 *जमा पेमेंट इतिहास:*%0A` + 
-                custLogs.map(l => `• ${l.date}: ₹${l.amount}`).join('%0A');
-        }
-
-        let adv = advanceDatabase[custName] || 0;
-        let advText = adv > 0 ? `%0A🟢 *शिल्लक ॲडव्हान्स:* ₹${adv.toFixed(2)}` : "";
-
-        let msg = currentLang === 'mr'
-            ? `नमस्कार *${custName}*,%0A%0Aखातावही हिशोब तपशील:%0A🚗 एकूण ट्रिप्स: ${trips.length}%0A💰 एकूण भाडे: ₹${totalF.toFixed(2)}%0A💵 एकूण जमा: ₹${totalP.toFixed(2)}%0A🔴 येणे बाकी उधारी: ₹${totalB.toFixed(2)}${advText}${passbookText}%0A%0Aकृपया बाकी रक्कम अदा करावी.%0A*धन्यवाद!* 🚖`
-            : `Hello *${custName}*,%0A%0ALedger Summary:%0A🚗 Trips: ${trips.length}%0A💰 Total Fare: ₹${totalF.toFixed(2)}%0A💵 Paid: ₹${totalP.toFixed(2)}%0A🔴 Balance Due: ₹${totalB.toFixed(2)}`;
-
-        window.open(`https://wa.me/91${phone}?text=${msg}`, '_blank');
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ user: currentUser, trips: tripDatabase, fuel: fuelDatabase, ledger: customerLedger }, null, 2));
+        let anchor = document.createElement('a'); anchor.setAttribute("href", dataStr); anchor.setAttribute("download", `Backup_${currentUser}.json`);
+        document.body.appendChild(anchor); anchor.click(); anchor.remove(); alert("✅ बॅकअप डाऊनलोड झाला!");
     }
 
     function toggleTripType() {
-        const type = document.querySelector('input[name="tripType"]:checked').value;
+        let type = document.querySelector('input[name="tripType"]:checked').value;
         document.getElementById('kmRateCard').style.display = type === 'km' ? 'block' : 'none';
         document.getElementById('kmTrackingSection').style.display = type === 'km' ? 'block' : 'none';
         document.getElementById('fixRateSection').style.display = type === 'fix' ? 'block' : 'none';
     }
 
     function handleCustNameInput(val) {
-        let box = document.getElementById('custSuggestions');
-        let text = val.trim().toLowerCase();
+        let box = document.getElementById('custSuggestions'); let text = val.trim().toLowerCase();
         if(text.length < 1) { box.style.display = 'none'; return; }
-
-        let uniqueCustomers = [];
-        let map = new Map();
-        for (let item of tripDatabase) {
-            if(!map.has(item.name)) {
-                map.set(item.name, true);
-                uniqueCustomers.push({ name: item.name, phone: item.phone || '' });
-            }
-        }
-
-        let filtered = uniqueCustomers.filter(c => c.name.toLowerCase().includes(text));
-        if(filtered.length > 0) {
-            box.innerHTML = filtered.map(c => `
-                <div class="suggestion-item" onclick="selectCustSuggestion('${c.name.replace(/'/g, "\\'")}', '${c.phone}')">
-                    <span>👤 <b>${c.name}</b></span>
-                    <span style="color:#888; font-size:11px;">${c.phone ? '📞 ' + c.phone : ''}</span>
-                </div>
-            `).join('');
+        let unique = [...new Set(tripDatabase.map(t => t.name))].filter(n => n.toLowerCase().includes(text));
+        if(unique.length > 0) {
+            box.innerHTML = unique.map(n => `<div class="suggestion-item" onclick="document.getElementById('custName').value='${n}'; document.getElementById('custSuggestions').style.display='none';">👤 <b>${n}</b></div>`).join('');
             box.style.display = 'block';
-        } else {
-            box.style.display = 'none';
-        }
+        } else { box.style.display = 'none'; }
     }
 
-    function selectCustSuggestion(name, phone) {
-        document.getElementById('custName').value = name;
-        if(phone) document.getElementById('custPhone').value = phone;
-        document.getElementById('custSuggestions').style.display = 'none';
-    }
-
-    function printTripBill(id) {
-        let trip = tripDatabase.find(t => t.id === id);
-        if(!trip) return;
-        let win = window.open('', '', 'height=500, width=500');
-        win.document.write(`
-            <html><head><title>पावती - ${trip.name}</title>
-            <style>body{font-family:sans-serif;padding:20px;line-height:1.6;} table{width:100%;border-collapse:collapse;margin:15px 0;} td,th{border:1px solid #ddd;padding:8px;text-align:left;}</style>
-            </head><body>
-            <h2>🚖 ट्रिप पावती</h2>
-            <p><b>तारीख:</b> ${trip.date}</p>
-            <p><b>ग्राहक:</b> ${trip.name} (${trip.phone || 'N/A'})</p>
-            <p><b>मार्ग:</b> ${trip.from} ➔ ${trip.to}</p>
-            ${trip.note ? `<p><b>टीप:</b> ${trip.note}</p>` : ''}
-            <table>
-                <tr><th>भाडे रक्कम</th><td>₹${trip.fare}</td></tr>
-                <tr><th>जमा रक्कम</th><td>₹${trip.paid}</td></tr>
-                <tr><th>बाकी उधारी</th><td><b>₹${trip.balance}</b></td></tr>
-            </table>
-            <script>window.print(); win.close();<\/script>
-            </body></html>
-        `);
-        win.document.close();
-    }
-
-    function saveTrip() {
-        const d = dictionary[currentLang];
-        const date = document.getElementById('tripDate').value;
-        const from = document.getElementById('fromCity').value || "Local";
-        const to = document.getElementById('toCity').value || "Local";
-        const type = document.querySelector('input[name="tripType"]:checked').value;
-        const name = document.getElementById('custName').value.trim();
-        const phone = document.getElementById('custPhone').value.trim();
-        const note = document.getElementById('tripNote').value.trim();
+    async function saveTrip() {
+        let date = document.getElementById('tripDate').value;
+        let from = document.getElementById('fromCity').value || "Local";
+        let to = document.getElementById('toCity').value || "Local";
+        let type = document.querySelector('input[name="tripType"]:checked').value;
+        let name = document.getElementById('custName').value.trim();
+        let phone = document.getElementById('custPhone').value.trim();
+        let note = document.getElementById('tripNote').value.trim();
         let paid = parseFloat(document.getElementById('amountPaid').value) || 0;
-        const bhatta = parseFloat(document.getElementById('driverBhatta').value) || 0;
-        const otherExp = parseFloat(document.getElementById('otherExpenses').value) || 0;
+        let bhatta = parseFloat(document.getElementById('driverBhatta').value) || 0;
+        let otherExp = parseFloat(document.getElementById('otherExpenses').value) || 0;
 
-        if(!name) { alert(currentLang === 'mr' ? "कृपया ग्राहकाचे नाव टाका!" : "Enter customer name!"); return; }
+        if(!name) { alert("ग्राहकाचे नाव टाका!"); return; }
 
-        let fare = 0, km = "Fixed", startReadingNum = 0, endReadingNum = 0;
+        let fare = 0, km = "Fixed", startNum = 0, endNum = 0;
         if(type === 'km') {
-            startReadingNum = parseFloat(document.getElementById('startReading').value) || 0;
-            endReadingNum = parseFloat(document.getElementById('endReading').value) || 0;
+            startNum = parseFloat(document.getElementById('startReading').value) || 0;
+            endNum = parseFloat(document.getElementById('endReading').value) || 0;
             let rate = parseFloat(document.getElementById('ratePerKm').value) || 20;
-            let diff = Math.max(0, endReadingNum - startReadingNum);
-            fare = diff * rate;
-            km = diff + (currentLang === 'mr' ? " किमी" : " KM");
-        } else {
-            fare = parseFloat(document.getElementById('fixFareAmount').value) || 0;
-        }
+            let diff = Math.max(0, endNum - startNum);
+            fare = diff * rate; km = diff + " किमी";
+        } else { fare = parseFloat(document.getElementById('fixFareAmount').value) || 0; }
 
-        if(paid > 0) {
-            customerLedger.unshift({
-                id: Date.now(), name: name, date: date,
-                amount: paid.toFixed(2), type: `ट्रिप ॲडव्हान्स (${from} ➔ ${to})`
-            });
-            saveUserData();
-        }
+        if(paid > 0) { customerLedger.unshift({ id: Date.now(), name, date, amount: paid.toFixed(2), type: `ट्रिप ॲडव्हान्स` }); }
 
-        if(advanceDatabase[name] && advanceDatabase[name] > 0) {
-            let advUsed = Math.min(advanceDatabase[name], fare - paid);
-            if(advUsed > 0) {
-                paid += advUsed;
-                advanceDatabase[name] -= advUsed;
-                customerLedger.unshift({
-                    id: Date.now() + 1, name: name, date: date,
-                    amount: advUsed.toFixed(2), type: `शिल्लक ॲडव्हान्स वापरला`
-                });
-                saveUserData();
-            }
-        }
-
-        tripDatabase.unshift({ 
+        tripDatabase.unshift({
             id: Date.now(), date, from, to, name, phone, km, note,
-            startKm: startReadingNum, endKm: endReadingNum,
-            fare: fare.toFixed(2), paid: paid.toFixed(2), 
-            balance: Math.max(0, fare - paid).toFixed(2),
-            bhatta: bhatta.toFixed(2),
-            expense: (otherExp + bhatta).toFixed(2)
+            fare: fare.toFixed(2), paid: paid.toFixed(2), balance: Math.max(0, fare - paid).toFixed(2),
+            bhatta: bhatta.toFixed(2), expense: (otherExp + bhatta).toFixed(2)
         });
-        
-        saveUserData();
-        alert(d.alertSave);
-        
+
+        await saveUserData(); alert("✅ ट्रिप सेव्ह झाली!");
         document.getElementById('fromCity').value = ""; document.getElementById('toCity').value = "";
         document.getElementById('custName').value = ""; document.getElementById('custPhone').value = "";
-        document.getElementById('startReading').value = ""; document.getElementById('endReading').value = "";
-        document.getElementById('fixFareAmount').value = ""; document.getElementById('amountPaid').value = "0";
-        document.getElementById('driverBhatta').value = "0"; document.getElementById('otherExpenses').value = "0";
-        document.getElementById('tripNote').value = "";
-        document.getElementById('custSuggestions').style.display = 'none';
-        switchPage('home');
+        document.getElementById('tripNote').value = ""; switchPage('home');
     }
 
     function populateDirectPayDropdown() {
-        const select = document.getElementById('directPayCustSelect');
-        if(!select) return;
-
-        let custMap = {};
-        tripDatabase.forEach(t => {
-            let bal = parseFloat(t.balance) || 0;
-            if(bal > 0) custMap[t.name] = (custMap[t.name] || 0) + bal;
-        });
-
+        let select = document.getElementById('directPayCustSelect'); if(!select) return;
+        let custMap = {}; tripDatabase.forEach(t => { let b = parseFloat(t.balance)||0; if(b>0) custMap[t.name] = (custMap[t.name]||0) + b; });
         let names = Object.keys(custMap);
-        if(names.length === 0) {
-            select.innerHTML = `<option value="">-- बाकी नाही --</option>`;
-            document.getElementById('custPendingHint').innerText = "";
-            return;
-        }
-
-        select.innerHTML = `<option value="">-- ग्राहक निवडा --</option>` + names.map(n => `<option value="${n}">${n} (बाकी: ₹${custMap[n].toFixed(2)})</option>`).join('');
-        updateSelectedCustPending();
+        select.innerHTML = names.length === 0 ? `<option value="">-- बाकी नाही --</option>` : `<option value="">-- ग्राहक निवडा --</option>` + names.map(n => `<option value="${n}">${n} (₹${custMap[n].toFixed(2)})</option>`).join('');
     }
 
     function updateSelectedCustPending() {
-        const select = document.getElementById('directPayCustSelect');
-        const hint = document.getElementById('custPendingHint');
-        let selectedCust = select.value;
-        if(!selectedCust) { hint.innerText = ""; return; }
-
-        let totalDue = 0;
-        tripDatabase.forEach(t => {
-            if(t.name === selectedCust) totalDue += parseFloat(t.balance) || 0;
-        });
-        let adv = advanceDatabase[selectedCust] || 0;
-        let advHtml = adv > 0 ? ` | <span style="color:green;">ॲडव्हान्स: ₹${adv.toFixed(2)}</span>` : '';
-        hint.innerHTML = `<span style="color:var(--kb-red);">👤 ${selectedCust} बाकी: <b>₹${totalDue.toFixed(2)}</b></span>${advHtml}`;
+        let name = document.getElementById('directPayCustSelect').value; let hint = document.getElementById('custPendingHint');
+        if(!name) { hint.innerText = ""; return; }
+        let due = 0; tripDatabase.forEach(t => { if(t.name === name) due += parseFloat(t.balance)||0; });
+        hint.innerHTML = `<span style="color:var(--kb-red);">बाकी: <b>₹${due.toFixed(2)}</b></span>`;
     }
 
-    function settleCustomerPaymentDirect() {
-        const custName = document.getElementById('directPayCustSelect').value;
-        const amountInput = parseFloat(document.getElementById('directPayAmount').value) || 0;
-        const payDate = document.getElementById('directPayDate').value || new Date().toISOString().split('T')[0];
+    async function settleCustomerPaymentDirect() {
+        let name = document.getElementById('directPayCustSelect').value;
+        let amt = parseFloat(document.getElementById('directPayAmount').value) || 0;
+        let date = document.getElementById('directPayDate').value || new Date().toISOString().split('T')[0];
+        if(!name || amt <= 0) { alert("माहिती भरा!"); return; }
 
-        if(!custName || amountInput <= 0) {
-            alert(currentLang === 'mr' ? "कृपया ग्राहक आणि वैध रक्कम टाका!" : "Select customer & amount!");
-            return;
-        }
-
-        customerLedger.unshift({
-            id: Date.now(), name: custName, date: payDate,
-            amount: amountInput.toFixed(2), type: "थेट पेमेंट (Lump-sum)"
+        customerLedger.unshift({ id: Date.now(), name, date, amount: amt.toFixed(2), type: "थेट पेमेंट" });
+        let rem = amt;
+        tripDatabase.filter(t => t.name === name && parseFloat(t.balance) > 0).sort((a,b) => a.id - b.id).forEach(t => {
+            if(rem <= 0) return;
+            let b = parseFloat(t.balance)||0; let credit = Math.min(rem, b);
+            t.paid = (parseFloat(t.paid) + credit).toFixed(2); t.balance = (b - credit).toFixed(2); rem -= credit;
         });
-        saveUserData();
-
-        let remaining = amountInput;
-        let custTrips = tripDatabase.filter(t => t.name === custName && parseFloat(t.balance) > 0).sort((a,b) => a.id - b.id);
-
-        custTrips.forEach(t => {
-            if(remaining <= 0) return;
-            let tripBal = parseFloat(t.balance) || 0;
-            if(tripBal > 0) {
-                let credit = Math.min(remaining, tripBal);
-                t.paid = (parseFloat(t.paid) + credit).toFixed(2);
-                t.balance = (tripBal - credit).toFixed(2);
-                remaining -= credit;
-            }
-        });
-
-        if(remaining > 0) {
-            advanceDatabase[custName] = (advanceDatabase[custName] || 0) + remaining;
-            saveUserData();
-        }
-
-        saveUserData();
-        document.getElementById('directPayAmount').value = "";
-        alert(currentLang === 'mr' ? `✅ ₹${amountInput} यशस्वीरित्या जमा झाले!` : `✅ Payment recorded!`);
-        
-        renderSummary();
-        populateDirectPayDropdown();
-        renderHistory();
+        await saveUserData(); alert("✅ पेमेंट जमा झाले!"); document.getElementById('directPayAmount').value = "";
+        renderSummary(); populateDirectPayDropdown();
     }
 
-    function receivePayment(id) {
-        let trip = tripDatabase.find(t => t.id === id);
-        if(!trip) return;
-        
-        let currentBal = parseFloat(trip.balance) || 0;
-        if(currentBal <= 0) { alert("Already paid!"); return; }
-
-        let newAmount = prompt(`कॅश जमा करा (${trip.name}):`, currentBal);
-        if(newAmount !== null && newAmount.trim() !== "") {
-            let addedPaid = parseFloat(newAmount) || 0;
-            if(addedPaid <= 0) return;
-
-            let today = new Date().toISOString().split('T')[0];
-            customerLedger.unshift({
-                id: Date.now(), name: trip.name, date: today,
-                amount: addedPaid.toFixed(2), type: `ट्रिप जमा (${trip.from} ➔ ${trip.to})`
-            });
-            saveUserData();
-
-            let updatedPaid = (parseFloat(trip.paid) || 0) + addedPaid;
-            let updatedBal = (parseFloat(trip.fare) || 0) - updatedPaid;
-
-            trip.paid = updatedPaid.toFixed(2);
-            trip.balance = updatedBal <= 0 ? "0.00" : updatedBal.toFixed(2);
-
-            if(updatedBal < 0) {
-                advanceDatabase[trip.name] = (advanceDatabase[trip.name] || 0) + Math.abs(updatedBal);
-                saveUserData();
-                trip.balance = "0.00";
-            }
-
-            saveUserData();
-            alert("✅ पेमेंट जमा झाले!");
-            renderHistory();
-            renderSummary();
+    async function receivePayment(id) {
+        let trip = tripDatabase.find(t => t.id === id); if(!trip) return;
+        let p = prompt(`रक्कम जमा करा (${trip.name}):`, trip.balance);
+        if(p !== null && p.trim() !== "") {
+            let add = parseFloat(p)||0; if(add <= 0) return;
+            customerLedger.unshift({ id: Date.now(), name: trip.name, date: new Date().toISOString().split('T')[0], amount: add.toFixed(2), type: "ट्रिप जमा" });
+            trip.paid = (parseFloat(trip.paid) + add).toFixed(2);
+            let newBal = (parseFloat(trip.fare) || 0) - parseFloat(trip.paid);
+            trip.balance = newBal <= 0 ? "0.00" : newBal.toFixed(2);
+            await saveUserData(); alert("✅ जमा झाले!"); renderHistory(); renderSummary();
         }
     }
 
-    function saveFuel() {
-        const d = dictionary[currentLang];
-        const date = document.getElementById('fuelDate').value || new Date().toISOString().split('T')[0];
-        const type = document.getElementById('fuelType').value;
-        const amount = document.getElementById('fuelAmount').value;
-        const km = document.getElementById('fuelKm').value;
-        if(!amount || !km) { alert(d.alertFields); return; }
-
+    async function saveFuel() {
+        let date = document.getElementById('fuelDate').value || new Date().toISOString().split('T')[0];
+        let type = document.getElementById('fuelType').value;
+        let amount = document.getElementById('fuelAmount').value; let km = document.getElementById('fuelKm').value;
+        if(!amount || !km) { alert("माहिती भरा!"); return; }
         fuelDatabase.unshift({ id: Date.now(), date, type, amount: parseFloat(amount).toFixed(2), km: parseFloat(km) });
-        fuelDatabase.sort((a,b) => new Date(b.date) - new Date(a.date));
-        saveUserData();
-        alert(d.alertFuel);
-        document.getElementById('fuelAmount').value = ""; document.getElementById('fuelKm').value = "";
+        await saveUserData(); alert("✅ इंधन सेव्ह झाले!"); document.getElementById('fuelAmount').value = ""; document.getElementById('fuelKm').value = "";
         renderFuel();
     }
 
-    function deleteTrip(id, type) {
+    async function deleteTrip(id, type) {
         if(confirm("डिलीट करायचे का?")) {
-            if(type === 'fuel') {
-                fuelDatabase = fuelDatabase.filter(f => f.id !== id);
-                saveUserData();
-                renderFuel();
-            } else {
-                tripDatabase = tripDatabase.filter(t => t.id !== id);
-                saveUserData();
-                renderHistory();
-                updateHomeStats();
-            }
+            if(type === 'fuel') fuelDatabase = fuelDatabase.filter(f => f.id !== id);
+            else { tripDatabase = tripDatabase.filter(t => t.id !== id); updateHomeStats(); renderHistory(); }
+            await saveUserData();
         }
     }
 
     function renderHistory() {
-        const box = document.getElementById('allHistoryList');
-        if(!box) return;
+        let box = document.getElementById('allHistoryList'); if(!box) return;
+        let date = document.getElementById('historyDateFilter').value;
+        let trips = date ? tripDatabase.filter(t => t.date === date) : tripDatabase;
+        let dFare = 0; trips.forEach(t => dFare += parseFloat(t.fare)||0);
+        document.getElementById('dailyHistorySummary').innerHTML = `📅 दिनांक: ${date || 'सर्व'} | ट्रिप्स: ${trips.length} | कमाई: ₹${dFare.toFixed(2)}`;
         
-        const searchInput = document.getElementById('historySearchInput');
-        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-        const dateFilterInput = document.getElementById('historyDateFilter');
-        const selectedDate = dateFilterInput ? dateFilterInput.value : '';
-        const dailySummaryBox = document.getElementById('dailyHistorySummary');
-        const d = dictionary[currentLang];
-
-        let filteredTrips = selectedDate ? tripDatabase.filter(t => t.date === selectedDate) : tripDatabase;
-
-        let dayFare = 0, dayPaid = 0;
-        filteredTrips.forEach(t => {
-            dayFare += parseFloat(t.fare) || 0;
-            dayPaid += parseFloat(t.paid) || 0;
-        });
-
-        if (dailySummaryBox) {
-            dailySummaryBox.innerHTML = `📅 दिनांक: ${selectedDate || 'सर्व'} | ट्रिप्स: <b>${filteredTrips.length}</b> | कमाई: <span style="color:var(--kb-primary);">₹${dayFare.toFixed(2)}</span>`;
-        }
-
-        if (query) {
-            let matchingCusts = {};
-            filteredTrips.forEach(t => {
-                if(t.name.toLowerCase().includes(query) || (t.phone && t.phone.includes(query))) {
-                    if(!matchingCusts[t.name]) matchingCusts[t.name] = { name: t.name, totalFare: 0, totalBal: 0, count: 0 };
-                    matchingCusts[t.name].totalFare += parseFloat(t.fare) || 0;
-                    matchingCusts[t.name].totalBal += parseFloat(t.balance) || 0;
-                    matchingCusts[t.name].count++;
-                }
-            });
-
-            let custNames = Object.keys(matchingCusts);
-            if(custNames.length === 0) { box.innerHTML = `<p style='text-align:center; padding:15px; color:#888;'>${d.noRecText}</p>`; return; }
-
-            box.innerHTML = custNames.map(name => {
-                let c = matchingCusts[name];
-                return `
-                    <div class="kb-ledger-card" onclick="openCustomerDetailsPage('${c.name.replace(/'/g, "\\'")}')">
-                        <div>
-                            <div style="font-size: 14px; font-weight: bold; color: var(--kb-text);">👤 ${c.name}</div>
-                            <div style="font-size: 11px; color: var(--kb-gray);">ट्रिप्स: ${c.count} | भाडे: ₹${c.totalFare.toFixed(2)}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 10.5px; color: var(--kb-gray);">बाकी</div>
-                            <div style="font-size: 14px; font-weight: bold; color: ${c.totalBal > 0 ? 'var(--kb-red)' : 'var(--kb-green)'};">₹${c.totalBal.toFixed(2)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            return;
-        }
-
-        if(filteredTrips.length === 0) { box.innerHTML = `<p style='text-align:center; padding:20px; color:#888;'>${d.noRecText}</p>`; return; }
-
-        box.innerHTML = filteredTrips.map(t => {
-            let hasBal = parseFloat(t.balance) > 0;
-            let noteHtml = t.note ? `<div style="margin-top:3px; color:#0288d1; font-size:11.5px;">📝 टीप: ${t.note}</div>` : '';
-            return `
+        box.innerHTML = trips.length === 0 ? `<p style="text-align:center; color:#888;">नोंद नाही</p>` :
+            trips.map(t => `
                 <div class="history-item">
                     <div class="history-header">
-                        <span onclick="openCustomerDetailsPage('${t.name.replace(/'/g, "\\'")}')" style="cursor:pointer; color:var(--kb-primary);">
-                            👤 <b>${t.name}</b> <small>(${t.date})</small>
-                        </span>
+                        <span style="color:var(--kb-primary);">👤 <b>${t.name}</b></span>
                         <div>
-                            <button class="btn-print" onclick="printTripBill(${t.id})">🖨️</button>
-                            <button class="btn-wa-msg" onclick="sendWhatsAppBill(${t.id})">💬</button>
-                            ${hasBal ? `<button class="btn-pay" onclick="receivePayment(${t.id})">${d.btnCollectText}</button>` : `<span style="color:var(--kb-green); font-size:11px; font-weight:bold;">पूर्ण जमा</span>`}
+                            <button class="btn-wa-msg" onclick="window.open('https://wa.me/91${t.phone}?text=भाडे: ₹${t.fare}')">💬</button>
                             <button class="btn-delete" onclick="deleteTrip(${t.id}, 'trip')">🗑️</button>
                         </div>
                     </div>
                     <div><span class="route-badge">${t.from} ➔ ${t.to}</span></div>
-                    ${noteHtml}
-                    <div style="margin-top:4px; color:#555;">धाव: <b>${t.km}</b> | भाडे: ₹${t.fare}</div>
-                    <div style="color:${hasBal ? 'var(--kb-red)' : 'var(--kb-green)'}; font-weight:bold; margin-top:2px;">
-                        जमा: ₹${t.paid} | बाकी: ₹${t.balance}
-                    </div>
+                    <div style="margin-top:4px;">भाडे: ₹${t.fare} | बाकी: <span style="color:${t.balance>0?'var(--kb-red)':'var(--kb-green)'};">₹${t.balance}</span></div>
                 </div>
-            `;
-        }).join('');
-    }
-
-    function openCustomerDetailsPage(custName) {
-        selectedCustomerName = custName;
-        let custTrips = tripDatabase.filter(t => t.name === custName);
-        if(custTrips.length === 0) return;
-
-        let totalF = 0, totalP = 0, totalB = 0;
-        let phone = custTrips[0].phone || "नाही";
-        custTrips.forEach(t => {
-            totalF += parseFloat(t.fare) || 0;
-            totalP += parseFloat(t.paid) || 0;
-            totalB += parseFloat(t.balance) || 0;
-        });
-
-        document.getElementById('custProfileCard').innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                <div>
-                    <h2 style="font-size: 17px; margin-bottom: 2px;">👤 ${custName}</h2>
-                    <p style="font-size: 11.5px; opacity: 0.9;">📞 मोबाईल: ${phone}</p>
-                </div>
-                <button class="btn-wa-msg" style="padding:6px 10px; font-size:11px;" onclick="sendCustomerFullWhatsAppSummary('${custName.replace(/'/g, "\\'")}')">
-                    💬 हिशोब पाठवा
-                </button>
-            </div>
-            <hr style="border:none; border-top:1px solid rgba(255,255,255,0.2); margin:10px 0;">
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 12px;">
-                <div>ट्रिप्स: <b>${custTrips.length}</b></div>
-                <div>एकूण भाडे: <b>₹${totalF.toFixed(2)}</b></div>
-                <div style="color: #a7ffeb;">जमा: <b>₹${totalP.toFixed(2)}</b></div>
-                <div style="color: #ffcdd2;">बाकी: <b>₹${totalB.toFixed(2)}</b></div>
-            </div>
-        `;
-
-        let custLogs = customerLedger.filter(l => l.name === custName);
-        const passbookBody = document.getElementById('custPassbookTableBody');
-        passbookBody.innerHTML = custLogs.length === 0 ? `<tr><td colspan="3" style="text-align:center; color:#888;">नोंद नाही</td></tr>` : 
-            custLogs.map(p => `<tr><td>${p.date}</td><td><span class="route-badge">${p.type}</span></td><td style="color:green; font-weight:bold;">+₹${p.amount}</td></tr>`).join('');
-
-        const container = document.getElementById('custTripsListContainer');
-        container.innerHTML = custTrips.map(t => {
-            let noteHtml = t.note ? `<div style="margin-top:2px; color:#0288d1; font-size:11.5px;">📝 टीप: ${t.note}</div>` : '';
-            return `
-                <div class="history-item">
-                    <div class="history-header"><span>📅 ${t.date}</span><span class="route-badge">${t.from} ➔ ${t.to}</span></div>
-                    ${noteHtml}
-                    <div style="color: ${parseFloat(t.balance) > 0 ? 'var(--kb-red)' : 'var(--kb-green)'}; font-weight:bold; margin-top:3px;">
-                        भाडे: ₹${t.fare} | जमा: ₹${t.paid} | बाकी: ₹${t.balance}
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        switchPage('customerDetails');
+            `).join('');
     }
 
     function renderFuel() {
-        const box = document.getElementById('fuelHistoryList');
-        if(!box) return;
-        if(fuelDatabase.length === 0) { box.innerHTML = `<p style='text-align:center; padding:10px; color:#888;'>कोणतीही नोंद नाही</p>`; return; }
-        
-        box.innerHTML = fuelDatabase.map(f => `
-            <div class="kb-ledger-card" style="border-left: 4px solid #6a1b9a;" onclick="openFuelCycleDetails(${f.id})">
-                <div>
-                    <div style="font-size: 14px; font-weight: bold; color: #6a1b9a;">⛽ ${f.type} | ₹${f.amount}</div>
-                    <div style="font-size: 11px; color: var(--kb-gray);">📅 ${f.date} | ओडोमीटर: ${f.km} KM</div>
-                </div>
-                <button class="btn-delete" onclick="event.stopPropagation(); deleteTrip(${f.id}, 'fuel')">🗑️</button>
-            </div>
-        `).join('');
-    }
-
-    function openFuelCycleDetails(fuelId) {
-        let sortedFuel = [...fuelDatabase].sort((a,b) => new Date(a.date) - new Date(b.date) || a.id - b.id);
-        let currentIndex = sortedFuel.findIndex(f => f.id === fuelId);
-        if(currentIndex === -1) return;
-
-        let currentFuel = sortedFuel[currentIndex];
-        let nextFuel = (currentIndex + 1 < sortedFuel.length) ? sortedFuel[currentIndex + 1] : null;
-
-        let startDate = currentFuel.date;
-        let endDate = nextFuel ? nextFuel.date : "चालू";
-        let startKm = currentFuel.km;
-        let endKm = nextFuel ? nextFuel.km : 0;
-
-        let cycleTrips = tripDatabase.filter(t => {
-            let tDate = new Date(t.date), sDate = new Date(startDate);
-            return nextFuel ? (tDate >= sDate && tDate <= new Date(nextFuel.date)) : (tDate >= sDate);
-        });
-
-        if(!nextFuel) {
-            let maxKm = startKm;
-            cycleTrips.forEach(t => { if(t.endKm && t.endKm > maxKm) maxKm = t.endKm; });
-            endKm = maxKm;
-        }
-
-        let totalRunKm = endKm >= startKm ? (endKm - startKm) : 0;
-        let totalFare = 0, totalExp = 0;
-        cycleTrips.forEach(t => { totalFare += parseFloat(t.fare) || 0; totalExp += parseFloat(t.expense) || 0; });
-
-        let fuelCost = parseFloat(currentFuel.amount) || 0;
-        let netProfit = totalFare - (fuelCost + totalExp);
-
-        document.getElementById('fuelCycleOverviewCard').innerHTML = `
-            <h2 style="font-size: 16px; margin-bottom: 4px;">⛽ ${currentFuel.type} सायकल</h2>
-            <p style="font-size: 11px; opacity: 0.9;">कालावधी: ${startDate} ते ${endDate}</p>
-            <hr style="border:none; border-top:1px solid rgba(255,255,255,0.2); margin:10px 0;">
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 12px;">
-                <div>धाव: <b>${totalRunKm} KM</b></div>
-                <div>इंधन खर्च: <b>₹${fuelCost}</b></div>
-                <div>कमाई: <b>₹${totalFare}</b></div>
-                <div style="color:${netProfit >= 0 ? '#a7ffeb' : '#ff8a80'}">नफा: <b>₹${netProfit.toFixed(2)}</b></div>
-            </div>
-        `;
-
-        document.getElementById('fuelCycleTripsList').innerHTML = cycleTrips.length === 0 ? `<p style="text-align:center; color:#888;">ट्रिप्स नाहीत</p>` :
-            cycleTrips.map(t => {
-                let noteHtml = t.note ? `<div style="font-size:11px; color:#0288d1;">📝 ${t.note}</div>` : '';
-                return `<div class="history-item"><div class="history-header"><span>👤 ${t.name}</span><span class="route-badge">${t.from} ➔ ${t.to}</span></div>${noteHtml}भाडे: ₹${t.fare}</div>`;
-            }).join('');
-
-        switchPage('fuelCycle');
+        let box = document.getElementById('fuelHistoryList'); if(!box) return;
+        box.innerHTML = fuelDatabase.length === 0 ? `<p style="text-align:center; color:#888;">नोंद नाही</p>` :
+            fuelDatabase.map(f => `<div class="kb-ledger-card" style="border-left:4px solid #6a1b9a;"><div><b>⛽ ${f.type}</b> | ₹${f.amount} <br><small>${f.date} | KM: ${f.km}</small></div><button class="btn-delete" onclick="deleteTrip(${f.id}, 'fuel')">🗑️</button></div>`).join('');
     }
 
     function renderSummary() {
-        const monthEl = document.getElementById('filterMonth');
-        const selectedMonth = monthEl ? monthEl.value : new Date().toISOString().slice(0, 7);
-
-        let mFare = 0, mExp = 0;
+        let tf = 0, tp = 0, tb = 0, custBals = {};
         tripDatabase.forEach(t => {
-            if(t.date && t.date.startsWith(selectedMonth)) {
-                mFare += parseFloat(t.fare) || 0;
-                mExp += parseFloat(t.expense) || 0;
-            }
+            tf += parseFloat(t.fare)||0; tp += parseFloat(t.paid)||0; let b = parseFloat(t.balance)||0; tb += b;
+            if(b > 0) custBals[t.name] = (custBals[t.name]||0) + b;
         });
-
-        let mFuel = 0;
-        fuelDatabase.forEach(f => {
-            if(f.date && f.date.startsWith(selectedMonth)) mFuel += parseFloat(f.amount) || 0;
-        });
-
-        let net = mFare - (mFuel + mExp);
-        document.getElementById('monthlyProfitBox').innerHTML = `
-            <div style="font-size: 12px; display:flex; justify-content:space-between; margin-bottom:4px;"><span>कमाई:</span> <b>₹${mFare.toFixed(2)}</b></div>
-            <div style="font-size: 12px; display:flex; justify-content:space-between; margin-bottom:4px; color:#6a1b9a;"><span>इंधन:</span> <b>₹${mFuel.toFixed(2)}</b></div>
-            <div style="font-size: 12px; display:flex; justify-content:space-between; margin-bottom:6px; color:#e67e22;"><span>खर्च:</span> <b>₹${mExp.toFixed(2)}</b></div>
-            <hr style="border:none; border-top:1px dashed #ccc; margin:6px 0;">
-            <div style="font-size: 14px; display:flex; justify-content:space-between; font-weight:bold; color:${net >= 0 ? 'var(--kb-green)' : 'var(--kb-red)'};">
-                <span>निव्वळ नफा:</span> <span>₹${net.toFixed(2)}</span>
-            </div>
-        `;
-
-        let tf = 0, tp = 0, tb = 0;
-        let custBals = {};
-        tripDatabase.forEach(t => {
-            tf += parseFloat(t.fare) || 0;
-            tp += parseFloat(t.paid) || 0;
-            let b = parseFloat(t.balance) || 0;
-            tb += b;
-            if(b > 0) custBals[t.name] = (custBals[t.name] || 0) + b;
-        });
-
-        document.getElementById('overallSummaryBox').innerHTML = `
-            <div class="kb-summary-box">
-                <div class="kb-sum-item"><p>एकूण भाडे</p><h3 style="color:var(--kb-primary)">₹${tf.toFixed(2)}</h3></div>
-                <div class="kb-sum-item"><p>मिळालेले</p><h3 style="color:var(--kb-green)">₹${tp.toFixed(2)}</h3></div>
-                <div class="kb-sum-item"><p>बाकी उधारी</p><h3 style="color:var(--kb-red)">₹${tb.toFixed(2)}</h3></div>
-            </div>
-        `;
-
-        let todayTime = new Date().getTime();
-        let fifteenDays = 15 * 24 * 60 * 60 * 1000;
-
-        let balHtml = "";
-        for (let name in custBals) {
-            let isOldDue = false;
-            tripDatabase.forEach(t => {
-                if(t.name === name && parseFloat(t.balance) > 0) {
-                    let tripTime = new Date(t.date).getTime();
-                    if((todayTime - tripTime) > fifteenDays) isOldDue = true;
-                }
-            });
-
-            let oldDueBadge = isOldDue ? `<span style="background:#ffebee; color:#d32f2f; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; margin-left:6px;">⚠️ जुनी उधारी</span>` : '';
-
-            balHtml += `
-                <div class="kb-ledger-card" onclick="openCustomerDetailsPage('${name.replace(/'/g, "\\'")}')">
-                    <div style="font-size: 13.5px; font-weight: bold;">👤 ${name} ${oldDueBadge}</div>
-                    <div style="font-size: 13.5px; font-weight: bold; color: var(--kb-red);">₹${custBals[name].toFixed(2)}</div>
-                </div>
-            `;
-        }
-        document.getElementById('customerBalanceList').innerHTML = balHtml || `<p style="color:var(--kb-green); font-size:12px; text-align:center;">सर्व हिशोब पूर्ण clear आहे! 👍</p>`;
+        document.getElementById('overallSummaryBox').innerHTML = `<div class="kb-summary-box"><div class="kb-sum-item"><p>एकूण भाडे</p><h3 style="color:var(--kb-primary)">₹${tf.toFixed(2)}</h3></div><div class="kb-sum-item"><p>मिळालेले</p><h3 style="color:var(--kb-green)">₹${tp.toFixed(2)}</h3></div><div class="kb-sum-item"><p>बाकी उधारी</p><h3 style="color:var(--kb-red)">₹${tb.toFixed(2)}</h3></div></div>`;
+        document.getElementById('customerBalanceList').innerHTML = Object.keys(custBals).map(n => `<div class="kb-ledger-card"><div>👤 <b>${n}</b></div><div style="color:var(--kb-red); font-weight:bold;">₹${custBals[n].toFixed(2)}</div></div>`).join('') || `<p style="text-align:center; color:var(--kb-green);">सर्व हिशोब clear आहे! 👍</p>`;
     }
 </script>
 </body>
